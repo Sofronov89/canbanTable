@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <link rel="stylesheet" href="main.css">
+        <title>canban table</title>
+        <script src="js/react.js"></script>
+        <script src="js/react-dom.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+    </head>
+    <body>
+        <div id="example"></div>
+
+        <script type="text/babel">
+    
+            class Task extends React.Component {
+                constructor(props) {
+                    super(props);
+                    this.state = {
+                        edit: false,
+                    };
+                };
+                edit = () => {
+                    this.setState ({edit: true});
+                };
+                remove = () => {
+                    this.props.deleteBlock (this.props.index);
+                };
+                save = () => {
+                    this.props.update (this.refs.newTxt.value, this.props.index);  
+                    this.setState ({edit: false}); 
+                };
+                rendNorm = () => {
+                    return (
+                        <div className="box">
+                          <div className="text">{this.props.children}</div>
+                          <button onClick={this.edit} className="btn light">Редактировать</button>
+                          <button onClick={this.remove} className="btn red">Удалить</button>
+                        </div>
+                    );
+                };
+                rendEdit = () => {
+                    return (
+                        <div className="box">
+                            <textarea ref="newTxt" defaultValue={this.props.children}></textarea>
+                            <button onClick={this.save} className="btn success">Сохранить</button>
+                        </div>
+                    );
+                };
+                render() {
+                    if (this.state.edit) {
+                        return this.rendEdit ();
+                    } else {
+                        return this.rendNorm ();
+                    }
+                }
+            }
+
+            class Field extends React.Component {   
+                constructor(props) {
+                    super(props);
+                    this.state = {
+                        tasks: [[
+                            'Сделать canban',
+                            'Сделать trello',
+                            'Сделать canban похожую на trello'
+                        ]]
+                    };
+                };
+                addTask = (text) => {
+                    var arrTask = this.state.tasks;
+                    arrTask[0].push (text);
+                    this.setState ({tasks: arrTask});
+                };
+                deleteBlock = (i) => {
+                    var arrTask = this.state.tasks;
+                    arrTask[0].splice (i, 1);
+                    this.setState ({tasks: arrTask});
+                };
+                updateText = (text, i) => {
+                    var arrTask = this.state.tasks;
+                    arrTask[0][i] = text;
+                    this.setState ({tasks: arrTask});
+                };
+                eachTask = (item, i) => {
+                    return (
+                        <Task key={i} index={i} update={this.updateText} deleteBlock={this.deleteBlock}>
+                            {item}
+                        </Task>
+                    );
+                };
+                render() {
+                    return (
+                        <div className="field">
+                            <h2>Задание</h2>
+                            {this.state.tasks[0].map (this.eachTask)}
+                            <button onClick={this.addTask.bind (null, 'простое задание')} className="btn new">Новое Задание</button>
+                        </div>
+                    );
+                }
+            }
+    
+            const app = document.getElementById("example");
+    
+            ReactDOM.render (
+                <div>
+                    <Field/>
+                    <Field/>
+                    <Field/>
+                </div>, 
+                app
+            );
+
+        </script>
+    </body>
+</html>
